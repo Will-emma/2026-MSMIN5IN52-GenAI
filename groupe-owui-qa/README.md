@@ -4,7 +4,8 @@
 
 | Membre | Contribution principale |
 |---|---|
-| À compléter | À compléter |
+| POATY Will Emmanuel | À compléter |
+| DIBANTSA Nounga Yan Taliane | À compléter |
 
 ## Sujet
 
