@@ -5,6 +5,10 @@
   "description": "F1 — QA E2E d'Open WebUI (Playwright, multi-tenant, CI)",
   "type": "module",
   "scripts": {
+    "env:up": "docker compose up -d --wait",
+    "env:down": "docker compose down",
+    "env:reset": "docker compose down -v",
+    "seed": "node --env-file=.env scripts/seed.mjs",
     "test": "playwright test",
     "test:headed": "playwright test --headed",
     "test:ui": "playwright test --ui",
