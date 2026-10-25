@@ -61,6 +61,8 @@ export const CHAT = {
   // L'editeur TipTap/ProseMirror (PAS un textarea standard !)
   input: '#chat-input',
   inputContainer: '#chat-input-container',
+  attachmentsButton: '#input-menu-button',
+  integrationsButton: '#integration-menu-button',
   submitButton: '#chat-input-container button[type="submit"]',
   // Messages dans le fil de conversation
   userMessage: '.chat-user',

@@ -1,52 +1,21 @@
 /**
  * Parcours RAG : un document est indexé dans une base de connaissances,
  * puis une question posée avec cette base doit s'appuyer sur ce document.
- * La préparation passe par l'API (rapide, fiable) ; la vérification
- * utilisateur passe par l'interface.
+ * La préparation passe par une fixture API isolée ; les scénarios valident
+ * aussi la réponse, la sélection et la citation dans l'interface.
  */
-import { test, expect, MODEL, uid, auth, type Tenant } from '../fixtures/owui';
-import type { APIRequestContext } from '@playwright/test';
-
-const FACT = 'La capitale secrète de Zorblandia est Quetzalville.';
-
-async function createKnowledgeWithDoc(request: APIRequestContext, t: Tenant, name: string) {
-  const kb = await (await request.post(`${t.url}/api/v1/knowledge/create`, {
-    headers: auth(t.token), data: { name, description: 'Créée par les tests E2E' },
-  })).json();
-
-  const file = await (await request.post(`${t.url}/api/v1/files/?process=true`, {
-    headers: auth(t.token),
-    multipart: { file: { name: `${name}.txt`, mimeType: 'text/plain', buffer: Buffer.from(FACT) } },
-  })).json();
-
-  // L'ajout échoue tant que le fichier n'est pas indexé : on réessaie.
-  await expect.poll(async () => (await request.post(`${t.url}/api/v1/knowledge/${kb.id}/file/add`, {
-    headers: auth(t.token), data: { file_id: file.id },
-  })).status(), { timeout: 20_000 }).toBe(200);
-
-  return kb.id as string;
-}
+import { test, expect, MODEL, RAG_FACT, auth } from '../fixtures/owui';
+import { CHAT } from '../helpers/selectors';
+import { sendMessage, startNewChat, selectModel } from '../helpers/chat';
 
 test.describe('RAG', () => {
-  let kbId: string;
-  let kbName: string;
-
-  test.beforeEach(async ({ request, tenantA }) => {
-    kbName = `kb-${uid()}`;
-    kbId = await createKnowledgeWithDoc(request, tenantA, kbName);
-  });
-
-  test.afterEach(async ({ request, tenantA }) => {
-    await request.delete(`${tenantA.url}/api/v1/knowledge/${kbId}/delete`, { headers: auth(tenantA.token) });
-  });
-
-  test('une question avec la base de connaissances renvoie le document source', async ({ request, tenantA }) => {
+  test('une question avec la base de connaissances renvoie le document source', async ({ request, tenantA, knowledgeBase }) => {
     const res = await request.post(`${tenantA.url}/api/chat/completions`, {
       headers: auth(tenantA.token),
       data: {
         model: MODEL, stream: false,
         messages: [{ role: 'user', content: 'Quelle est la capitale de Zorblandia ?' }],
-        files: [{ type: 'collection', id: kbId }],
+        files: [{ type: 'collection', id: knowledgeBase.id }],
       },
     });
     expect(res.ok()).toBeTruthy();
@@ -54,13 +23,32 @@ test.describe('RAG', () => {
 
     // Citation traçable : la source renvoyée est bien notre document.
     expect(body.sources?.[0]?.document?.join(' ')).toContain('Quetzalville');
-    expect(body.sources?.[0]?.metadata?.[0]?.name).toBe(`${kbName}.txt`);
+    expect(body.sources?.[0]?.metadata?.[0]?.name).toBe(knowledgeBase.fileName);
     // Le contexte a bien été injecté dans le prompt (le mock le signale).
+    expect(body.choices[0].message.content).toContain(`MOCK-RAG: ${RAG_FACT}`);
     expect(body.choices[0].message.content).toMatch(/fondée sur \d+ source/);
   });
 
-  test('la base de connaissances apparaît dans l\'espace de travail', async ({ page }) => {
+  test('la base de connaissances apparaît dans l\'espace de travail', async ({ page, knowledgeBase }) => {
     await page.goto('/workspace/knowledge');
-    await expect(page.getByText(kbName)).toBeVisible({ timeout: 15_000 });
+    await expect(page.getByText(knowledgeBase.name)).toBeVisible({ timeout: 15_000 });
+  });
+
+  test('une question depuis le chat affiche la réponse et la source de la connaissance', async ({ page, knowledgeBase }) => {
+    await startNewChat(page);
+    await selectModel(page, MODEL);
+
+    await page.locator(CHAT.attachmentsButton).click();
+    await page.getByRole('button', { name: /Joindre une connaissance/ }).click();
+    await page.getByRole('button', { name: knowledgeBase.name, exact: true }).click();
+
+    await sendMessage(page, 'Quelle est la capitale secrète de Zorblandia ?');
+
+    const assistant = page.locator(CHAT.assistantMessage).last();
+    await expect(assistant.locator('#response-content-container'))
+      .toContainText(`MOCK-RAG: ${RAG_FACT}`, { timeout: 30_000 });
+    await expect(assistant.getByRole('button', {
+      name: `Voir la source : ${knowledgeBase.fileName}`,
+    })).toBeVisible();
   });
 });

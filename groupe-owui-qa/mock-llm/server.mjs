@@ -24,6 +24,7 @@ const PORT = Number(process.env.PORT || 11500);
 const EMBED_DIM = 256;
 const CHAT_MODELS = ['mock-echo'];
 const EMBED_MODEL = 'mock-embed';
+const toolInvocations = new Map();
 
 const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
 
@@ -47,6 +48,10 @@ function textOf(content) {
 
 /** Réponse déterministe : écho de la question, plus les sources RAG si présentes. */
 function buildAnswer(messages) {
+  const toolResult = [...messages].reverse().find((m) =>
+    (m.role === 'tool' || m.role === 'function') && textOf(m.content).includes('QA_TOOL_EXECUTED:'));
+  if (toolResult) return `MOCK-TOOL-RESULT: ${textOf(toolResult.content)}`;
+
   const lastUser = [...messages].reverse().find((m) => m.role === 'user');
   const userText = textOf(lastUser?.content ?? '');
 
@@ -56,11 +61,64 @@ function buildAnswer(messages) {
 
   // Question réelle : dernière ligne après le contexte RAG éventuel.
   const question = userText.split('</context>').pop().trim().split('\n').pop().trim();
-  let answer = `MOCK-ECHO: ${question}`;
+  const fact = 'La capitale secrète de Zorblandia est Quetzalville.';
+  let answer = sourceIds.length > 0 && all.includes(fact)
+    ? `MOCK-RAG: ${fact}`
+    : `MOCK-ECHO: ${question}`;
   if (sourceIds.length > 0) {
     answer += `\n\nRéponse fondée sur ${sourceIds.length} source(s) [${sourceIds[0]}].`;
   }
   return answer;
+}
+
+function requestedToolCall(body, lastUser) {
+  const match = lastUser.match(/\[\[mock:tool=([A-Za-z0-9_-]+)\]\]/);
+  if (!match) return null;
+  const alreadyExecuted = (body.messages ?? []).some((message) =>
+    (message.role === 'tool' || message.role === 'function')
+      && textOf(message.content).includes('QA_TOOL_EXECUTED:'));
+  if (alreadyExecuted) return null;
+
+  const tool = (Array.isArray(body.tools) ? body.tools : []).find((candidate) =>
+    candidate.type === 'function'
+      && typeof candidate.function?.name === 'string'
+      && candidate.function.name.includes('record_qa_invocation'));
+  if (!tool) {
+    throw new Error('The mock tool-call directive was sent without the QA invocation tool enabled');
+  }
+
+  return {
+    id: `call_mock_${crypto.randomUUID()}`,
+    type: 'function',
+    function: {
+      name: tool.function.name,
+      arguments: JSON.stringify({ run_id: match[1] }),
+    },
+  };
+}
+
+function sendToolCall(res, id, model, toolCall) {
+  res.writeHead(200, { 'Content-Type': 'text/event-stream', 'Cache-Control': 'no-cache', Connection: 'keep-alive' });
+  const created = Math.floor(Date.now() / 1000);
+  const send = (delta, finish = null) =>
+    res.write(`data: ${JSON.stringify({ id, object: 'chat.completion.chunk', created, model, choices: [{ index: 0, delta, finish_reason: finish }] })}\n\n`);
+  send({ role: 'assistant', content: '' });
+  send({
+    tool_calls: [{
+      index: 0,
+      id: toolCall.id,
+      type: toolCall.type,
+      function: { name: toolCall.function.name, arguments: '' },
+    }],
+  });
+  send({
+    tool_calls: [{
+      index: 0,
+      function: { arguments: toolCall.function.arguments },
+    }],
+  });
+  send({}, 'tool_calls');
+  res.end('data: [DONE]\n\n');
 }
 
 function hashEmbedding(text) {
@@ -88,6 +146,20 @@ async function chatCompletions(req, res) {
   const id = `chatcmpl-mock-${Date.now()}`;
   const model = body.model ?? CHAT_MODELS[0];
   const created = Math.floor(Date.now() / 1000);
+  const toolCall = requestedToolCall(body, lastUser);
+  if (toolCall) {
+    if (body.stream) return sendToolCall(res, id, model, toolCall);
+    return json(res, 200, {
+      id, object: 'chat.completion', created, model,
+      choices: [{
+        index: 0,
+        message: { role: 'assistant', content: null, tool_calls: [toolCall] },
+        finish_reason: 'tool_calls',
+      }],
+      usage: { prompt_tokens: 0, completion_tokens: 0, total_tokens: 0 },
+    });
+  }
+
   const answer = buildAnswer(messages);
 
   if (!body.stream) {
@@ -115,6 +187,24 @@ const server = http.createServer(async (req, res) => {
   try {
     const url = new URL(req.url, 'http://localhost');
     const path = url.pathname.replace(/^\/v1/, '');
+    if (path === '/test/tool-invocations' && req.method === 'POST') {
+      const { run_id: runId } = await readBody(req);
+      if (typeof runId !== 'string' || !/^[A-Za-z0-9_-]+$/.test(runId)) {
+        return json(res, 400, { error: { message: 'Invalid run_id' } });
+      }
+      const calls = (toolInvocations.get(runId) ?? 0) + 1;
+      toolInvocations.set(runId, calls);
+      return json(res, 201, { run_id: runId, calls });
+    }
+    const invocationMatch = path.match(/^\/test\/tool-invocations\/([A-Za-z0-9_-]+)$/);
+    if (invocationMatch && req.method === 'GET') {
+      const runId = invocationMatch[1];
+      return json(res, 200, { run_id: runId, calls: toolInvocations.get(runId) ?? 0 });
+    }
+    if (invocationMatch && req.method === 'DELETE') {
+      toolInvocations.delete(invocationMatch[1]);
+      return json(res, 200, { deleted: true });
+    }
     if (req.method === 'GET' && path === '/health') return json(res, 200, { status: true });
     if (req.method === 'GET' && path === '/models') {
       return json(res, 200, {
