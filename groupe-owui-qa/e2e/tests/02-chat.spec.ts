@@ -1,4 +1,4 @@
-import { test, expect, MODEL, uid, auth } from '../fixtures/owui';
+import { test, expect, MODEL, LONG_QUESTION, uid, auth } from '../fixtures/owui';
 import { CHAT } from '../helpers/selectors';
 import { startNewChat, selectModel, sendMessage } from '../helpers/chat';
 
@@ -18,6 +18,16 @@ test.describe('Chat', () => {
     // caché de la barre d'actions « Demander / Expliquer ».)
     const answer = page.locator(CHAT.assistantMessage).last().locator('#response-content-container');
     await expect(answer).toContainText(`MOCK-ECHO: ${marker}`, { timeout: 30_000 });
+  });
+
+  test('une réponse longue au débit irrégulier est attendue jusqu\'au bout', async ({ page }) => {
+    // Même scénario que la baseline naïve (e2e/baseline/) : le mock streame
+    // ~25 mots avec un délai aléatoire entre chaque, comme un vrai LLM.
+    const question = `[[mock:jitter=150]] ${LONG_QUESTION} fin-${uid()}`;
+    await sendMessage(page, question);
+
+    const answer = page.locator(CHAT.assistantMessage).last().locator('#response-content-container');
+    await expect(answer).toContainText(`MOCK-ECHO: ${question}`, { timeout: 30_000 });
   });
 
   test('la conversation est enregistrée côté serveur', async ({ page, request, tenantA }) => {

@@ -1,0 +1,395 @@
+{
+  "date": "2026-10-24T23:41:06.634Z",
+  "runs": 10,
+  "runSummaries": [
+    {
+      "run": 1,
+      "seconds": 41.856,
+      "total": 15,
+      "failed": 1,
+      "suiteFailed": 0
+    },
+    {
+      "run": 2,
+      "seconds": 42.107,
+      "total": 15,
+      "failed": 1,
+      "suiteFailed": 0
+    },
+    {
+      "run": 3,
+      "seconds": 42.783,
+      "total": 15,
+      "failed": 1,
+      "suiteFailed": 0
+    },
+    {
+      "run": 4,
+      "seconds": 43.68,
+      "total": 15,
+      "failed": 1,
+      "suiteFailed": 0
+    },
+    {
+      "run": 5,
+      "seconds": 44.982,
+      "total": 15,
+      "failed": 1,
+      "suiteFailed": 0
+    },
+    {
+      "run": 6,
+      "seconds": 42.736,
+      "total": 15,
+      "failed": 1,
+      "suiteFailed": 0
+    },
+    {
+      "run": 7,
+      "seconds": 43.087,
+      "total": 15,
+      "failed": 1,
+      "suiteFailed": 0
+    },
+    {
+      "run": 8,
+      "seconds": 43.053,
+      "total": 15,
+      "failed": 1,
+      "suiteFailed": 0
+    },
+    {
+      "run": 9,
+      "seconds": 44.175,
+      "total": 15,
+      "failed": 1,
+      "suiteFailed": 0
+    },
+    {
+      "run": 10,
+      "seconds": 42.701,
+      "total": 15,
+      "failed": 1,
+      "suiteFailed": 0
+    }
+  ],
+  "tests": [
+    {
+      "project": "owui",
+      "title": "Connexion › sans session › un mauvais mot de passe affiche une erreur et reste sur /auth",
+      "passed": 10,
+      "failed": 0,
+      "durations": [
+        871,
+        896,
+        877,
+        921,
+        880,
+        878,
+        899,
+        877,
+        878,
+        928
+      ],
+      "errors": [],
+      "failRate": 0,
+      "avgMs": 891
+    },
+    {
+      "project": "owui",
+      "title": "Connexion › sans session › un utilisateur standard se connecte via le formulaire",
+      "passed": 10,
+      "failed": 0,
+      "durations": [
+        1651,
+        1640,
+        1582,
+        2069,
+        1592,
+        2091,
+        2040,
+        2076,
+        2133,
+        2061
+      ],
+      "errors": [],
+      "failRate": 0,
+      "avgMs": 1894
+    },
+    {
+      "project": "owui",
+      "title": "Connexion › un utilisateur connecté arrive sur la page de chat",
+      "passed": 10,
+      "failed": 0,
+      "durations": [
+        1381,
+        1377,
+        1360,
+        1378,
+        1383,
+        1357,
+        1436,
+        1393,
+        1441,
+        1429
+      ],
+      "errors": [],
+      "failRate": 0,
+      "avgMs": 1394
+    },
+    {
+      "project": "owui",
+      "title": "Chat › une question reçoit la réponse complète du modèle en streaming",
+      "passed": 10,
+      "failed": 0,
+      "durations": [
+        3422,
+        3433,
+        3443,
+        3570,
+        3428,
+        3530,
+        3498,
+        3499,
+        3528,
+        3482
+      ],
+      "errors": [],
+      "failRate": 0,
+      "avgMs": 3483
+    },
+    {
+      "project": "owui",
+      "title": "Chat › une réponse longue au débit irrégulier est attendue jusqu'au bout",
+      "passed": 10,
+      "failed": 0,
+      "durations": [
+        8962,
+        9460,
+        8877,
+        9005,
+        11941,
+        8983,
+        9042,
+        9525,
+        9434,
+        9036
+      ],
+      "errors": [],
+      "failRate": 0,
+      "avgMs": 9427
+    },
+    {
+      "project": "owui",
+      "title": "Chat › la conversation est enregistrée côté serveur",
+      "passed": 10,
+      "failed": 0,
+      "durations": [
+        3545,
+        3551,
+        3601,
+        3704,
+        3572,
+        3564,
+        3623,
+        3632,
+        3638,
+        3605
+      ],
+      "errors": [],
+      "failRate": 0,
+      "avgMs": 3604
+    },
+    {
+      "project": "owui",
+      "title": "Chat › une panne du modèle est signalée à l'utilisateur",
+      "passed": 10,
+      "failed": 0,
+      "durations": [
+        3524,
+        3471,
+        3604,
+        3780,
+        3539,
+        3592,
+        3621,
+        3600,
+        3625,
+        3639
+      ],
+      "errors": [],
+      "failRate": 0,
+      "avgMs": 3600
+    },
+    {
+      "project": "owui",
+      "title": "RAG › une question avec la base de connaissances renvoie le document source",
+      "passed": 10,
+      "failed": 0,
+      "durations": [
+        364,
+        368,
+        412,
+        462,
+        387,
+        341,
+        367,
+        276,
+        381,
+        393
+      ],
+      "errors": [],
+      "failRate": 0,
+      "avgMs": 375
+    },
+    {
+      "project": "owui",
+      "title": "RAG › la base de connaissances apparaît dans l'espace de travail",
+      "passed": 10,
+      "failed": 0,
+      "durations": [
+        1559,
+        1572,
+        1684,
+        1686,
+        1553,
+        1613,
+        1657,
+        1599,
+        1641,
+        1561
+      ],
+      "errors": [],
+      "failRate": 0,
+      "avgMs": 1613
+    },
+    {
+      "project": "owui",
+      "title": "Isolation › un jeton du tenant A est refusé par le tenant B",
+      "passed": 10,
+      "failed": 0,
+      "durations": [
+        12,
+        12,
+        14,
+        14,
+        9,
+        10,
+        12,
+        16,
+        9,
+        9
+      ],
+      "errors": [],
+      "failRate": 0,
+      "avgMs": 12
+    },
+    {
+      "project": "owui",
+      "title": "Isolation › une base de connaissances du tenant A est invisible depuis le tenant B",
+      "passed": 10,
+      "failed": 0,
+      "durations": [
+        81,
+        107,
+        97,
+        92,
+        79,
+        86,
+        93,
+        90,
+        83,
+        79
+      ],
+      "errors": [],
+      "failRate": 0,
+      "avgMs": 89
+    },
+    {
+      "project": "owui",
+      "title": "Isolation › un utilisateur ne peut pas lire la conversation d'un autre",
+      "passed": 10,
+      "failed": 0,
+      "durations": [
+        268,
+        266,
+        291,
+        289,
+        267,
+        266,
+        271,
+        267,
+        274,
+        270
+      ],
+      "errors": [],
+      "failRate": 0,
+      "avgMs": 273
+    },
+    {
+      "project": "owui",
+      "title": "Rôles › dans le navigateur › un utilisateur standard est redirigé hors de /admin",
+      "passed": 10,
+      "failed": 0,
+      "durations": [
+        2458,
+        2087,
+        2531,
+        2618,
+        2494,
+        2524,
+        2508,
+        2129,
+        2591,
+        2107
+      ],
+      "errors": [],
+      "failRate": 0,
+      "avgMs": 2405
+    },
+    {
+      "project": "owui",
+      "title": "Rôles › l'API d'administration refuse un utilisateur standard",
+      "passed": 10,
+      "failed": 0,
+      "durations": [
+        246,
+        246,
+        255,
+        261,
+        243,
+        250,
+        248,
+        242,
+        249,
+        241
+      ],
+      "errors": [],
+      "failRate": 0,
+      "avgMs": 248
+    },
+    {
+      "project": "baseline",
+      "title": "baseline naïve : lecture unique après un délai fixe",
+      "passed": 0,
+      "failed": 10,
+      "durations": [
+        8002,
+        8079,
+        8402,
+        8139,
+        8073,
+        8115,
+        8167,
+        8126,
+        8564,
+        8190
+      ],
+      "errors": [
+        "Error: \u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoContain\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m) // indexOf\u001b[22m"
+      ],
+      "failRate": 1,
+      "avgMs": 8186
+    }
+  ]
+}

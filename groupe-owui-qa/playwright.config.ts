@@ -47,5 +47,13 @@ export default defineConfig({
       dependencies: ['setup'],
       use: { ...devices['Desktop Chrome'], storageState: AUTH_FILE },
     },
+    // 3. Baseline naïve, volontairement fragile : lancée seulement à la demande
+    //    (npm run test:baseline) et par le rapport de flakiness.
+    {
+      name: 'baseline',
+      testMatch: /baseline\/.*\.spec\.ts/,
+      dependencies: ['setup'],
+      use: { ...devices['Desktop Chrome'], storageState: AUTH_FILE },
+    },
   ],
 });

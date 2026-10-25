@@ -9,9 +9,11 @@
     "env:down": "docker compose down",
     "env:reset": "docker compose down -v",
     "seed": "node --env-file=.env scripts/seed.mjs",
-    "test": "playwright test",
-    "test:headed": "playwright test --headed",
+    "test": "playwright test --project=owui",
+    "test:headed": "playwright test --project=owui --headed",
     "test:ui": "playwright test --ui",
+    "test:baseline": "playwright test --project=baseline",
+    "flakiness": "node scripts/flakiness.mjs",
     "report": "playwright show-report"
   },
   "devDependencies": {

@@ -14,6 +14,8 @@
  * Directives dans le dernier message utilisateur (scénarios d'erreur) :
  *   [[mock:error]]     -> HTTP 500
  *   [[mock:slow=MS]]   -> attend MS millisecondes avant de répondre
+ *   [[mock:jitter=MS]] -> délai aléatoire de 0 à MS ms entre chaque mot
+ *                         (imite le débit irrégulier d'un vrai LLM)
  */
 import http from 'node:http';
 import crypto from 'node:crypto';
@@ -81,6 +83,7 @@ async function chatCompletions(req, res) {
   }
   const slow = lastUser.match(/\[\[mock:slow=(\d+)\]\]/);
   if (slow) await sleep(Number(slow[1]));
+  const jitter = Number(lastUser.match(/\[\[mock:jitter=(\d+)\]\]/)?.[1] ?? 0);
 
   const id = `chatcmpl-mock-${Date.now()}`;
   const model = body.model ?? CHAT_MODELS[0];
@@ -102,7 +105,7 @@ async function chatCompletions(req, res) {
   // Découpage en mots pour exercer réellement le rendu en streaming.
   for (const piece of answer.match(/\S+\s*/g) ?? []) {
     send({ content: piece });
-    await sleep(15);
+    await sleep(15 + Math.random() * jitter);
   }
   send({}, 'stop');
   res.end('data: [DONE]\n\n');

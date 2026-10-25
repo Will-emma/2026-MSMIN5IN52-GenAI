@@ -23,6 +23,11 @@ export interface TempUser {
 
 export const MODEL = 'mock-echo';
 
+/** Question longue (~25 mots) pour le scénario « streaming irrégulier » et sa baseline. */
+export const LONG_QUESTION =
+  'Peux-tu expliquer en quelques phrases comment fonctionne un test de bout en bout '
+  + 'sur une application de chat qui répond en streaming avec un modèle de langage';
+
 /** Identifiant unique pour nommer les données d'un test (users, KB, chats). */
 export const uid = () => `${Date.now()}-${Math.random().toString(36).slice(2, 8)}`;
 
