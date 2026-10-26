@@ -204,14 +204,18 @@ GitHub ne découvre les workflows que dans `.github/workflows/` à la racine du
 dépôt ; `ci/e2e.yml` est conservé dans le dossier du groupe et aucun run CI
 n’est revendiqué dans ce README.
 
-La charte du dépôt interdit au groupe de modifier `.github/` à la racine.
-Solution conforme : demander au propriétaire du fork ou à l’enseignant de
-prendre en charge l’activation, en copiant/revoyant ce workflow dans
-`.github/workflows/groupe-owui-qa-e2e.yml` sur le fork. Le fichier du groupe
-reste alors la source proposée dans la PR ; l’activation hors de ce dossier
-doit être faite par la personne autorisée, pas par cette contribution. Après
-activation, vérifier un run sur la branche puis confirmer la présence des
-artifacts avant d’affirmer que la CI fonctionne.
+Pour l’activer, une personne autorisée (par exemple le propriétaire du fork ou
+l’enseignant) doit, sur le fork, créer `.github/workflows/` à la racine si
+nécessaire, puis y copier `groupe-owui-qa/ci/e2e.yml` sous le nom
+`groupe-owui-qa-e2e.yml`. Elle doit examiner puis committer ce fichier dans le
+fork, sans modifier la copie source du groupe. La charte interdit au groupe de
+modifier `.github/` à la racine. Une fois le workflow ajouté, la personne
+autorisée doit s’assurer que les Actions sont permises dans les paramètres du
+dépôt ; elle peut ensuite déclencher un run par un push contenant une
+modification sous `groupe-owui-qa/`, ou manuellement dans l’onglet **Actions**
+avec **Run workflow**. La définition prévoit ces deux déclencheurs. Vérifier
+qu’un run se termine avec succès et que ses artifacts (rapport, traces et
+captures) sont disponibles avant d’affirmer que la CI fonctionne.
 
 ## Limites connues et démonstration
 
@@ -223,29 +227,37 @@ artifacts avant d’affirmer que la CI fonctionne.
   fixé à `v0.11.4` dans Compose.
 - Aucun run GitHub Actions n’est confirmé ici. La reproductibilité CI dépend
   de l’activation du workflow par une personne autorisée.
-- Pour une démonstration sans fournisseur externe, démarrer Docker, exécuter
-  le seed et `npm test`; le mock local sert également de plan B pour la
-  démonstration des scénarios.
+- Pour une démonstration sans fournisseur externe, après l’installation et la
+  configuration de `.env` décrites plus haut, exécuter depuis ce dossier :
+
+  ```bash
+  npm run env:up
+  npm run seed
+  npm test
+  npm run env:down
+  ```
+
+  Le mock local sert de fournisseur pour les scénarios ; aucun compte externe
+  ni appel payant n’est requis.
 - Le budget LLM de la configuration par défaut est nul ; le coût éventuel se
   limite aux ressources locales et à la bande passante de téléchargement.
 
 ## Contributions des membres et assistance IA
 
-À compléter avec les contributions réellement réalisées et les pseudonymes
-GitHub utilisés dans la PR. Ne pas publier d’adresse e-mail ni d’identifiant
-étudiant.
+Le projet F1 — QA E2E d'Open WebUI a été réalisé en binôme.
 
-| Membre (pseudo GitHub) | Contributions vérifiées à renseigner |
-|---|---|
-| Étudiant A — `@à-renseigner` | Scénarios, fixtures, infrastructure ou documentation : à préciser |
-| Étudiant B — `@à-renseigner` | Scénarios, fixtures, infrastructure ou documentation : à préciser |
+`Will — @Will-emma`
+Mise en place initiale de l'environnement Docker (deux tenants Open WebUI et mock LLM), structure du projet, premiers tests Playwright, fixtures et configuration de l'environnement de test.
 
-**Assistance par IA :** Codex a assisté la rédaction et la mise à jour de
-fichiers du projet, notamment la documentation et le script de rapport de
-flakiness. Les membres du groupe doivent relire les changements, comprendre
-les choix, et valider les résultats avant de les soumettre ; l’assistance IA
-ne remplace pas cette validation humaine. Compléter la description avec les
-contributions humaines précises avant la PR.
+`Yan — @StarkMac22`
+Finalisation des parcours RAG et outils dans le navigateur, amélioration des fixtures et du mock LLM, validation de la suite Playwright (17/17), exécution et analyse de la campagne de stabilité (160/160), finalisation de la documentation et des rapports.
+
+
+**Méthode de collaboration :** développement sur des branches Git dédiées, commits distincts, vérifications locales et intégration du travail dans le fork collectif avant la Pull Request vers le dépôt du cours.
+
+
+**Assistance par IA :** Codex et claude ont assisté la rédaction et la mise à jour de
+fichiers du projet.
 
 ## Licence et références
 
@@ -257,4 +269,8 @@ contributions humaines précises avant la PR.
   [Playwright](https://playwright.dev/docs/intro) et
   [GitHub Actions](https://docs.github.com/en/actions).
 
-## Installation et configuration
+
+### Support de soutenance
+
+La présentation du projet est disponible dans
+[`slides/F1-QA-E2E-Open-WebUI.pptx`](slides/F1-QA-E2E-Open-WebUI.pptx).
