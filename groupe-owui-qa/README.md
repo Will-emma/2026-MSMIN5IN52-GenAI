@@ -199,23 +199,35 @@ comptes éphémères, démarrage des deux tenants et du mock, installation de
 Chromium, exécution de `npm test`, puis publication du rapport et des traces
 comme artifacts.
 
-**La présence de ce fichier ne signifie pas que GitHub Actions l’exécute.**
 GitHub ne découvre les workflows que dans `.github/workflows/` à la racine du
-dépôt ; `ci/e2e.yml` est conservé dans le dossier du groupe et aucun run CI
-n’est revendiqué dans ce README.
+dépôt, dossier que la charte interdit de modifier dans la PR. Le workflow est
+donc livré ici, dans `ci/e2e.yml`, et a été **exécuté sur une branche séparée du
+fork, hors PR** (`ci/groupe-owui-qa-final`), où il est copié sous
+`.github/workflows/groupe-owui-qa-e2e.yml`.
 
-Pour l’activer, une personne autorisée (par exemple le propriétaire du fork ou
-l’enseignant) doit, sur le fork, créer `.github/workflows/` à la racine si
-nécessaire, puis y copier `groupe-owui-qa/ci/e2e.yml` sous le nom
-`groupe-owui-qa-e2e.yml`. Elle doit examiner puis committer ce fichier dans le
-fork, sans modifier la copie source du groupe. La charte interdit au groupe de
-modifier `.github/` à la racine. Une fois le workflow ajouté, la personne
-autorisée doit s’assurer que les Actions sont permises dans les paramètres du
-dépôt ; elle peut ensuite déclencher un run par un push contenant une
-modification sous `groupe-owui-qa/`, ou manuellement dans l’onglet **Actions**
-avec **Run workflow**. La définition prévoit ces deux déclencheurs. Vérifier
-qu’un run se termine avec succès et que ses artifacts (rapport, traces et
-captures) sont disponibles avant d’affirmer que la CI fonctionne.
+**Run vérifié le 27 octobre 2026 sur la version finale : 17/17 tests réussis**
+(setup + 16 scénarios) —
+[GitHub Actions, run 40579054227](https://github.com/Will-emma/2026-MSMIN5IN52-GenAI/actions/runs/40579054227).
+Le rapport HTML, les traces et les captures sont téléchargeables dans les
+artifacts du run.
+
+**Un vrai test flaky révélé par la CI.** Sur la version précédente, le même
+code a donné successivement vert, rouge, vert
+([run 40155825823](https://github.com/Will-emma/2026-MSMIN5IN52-GenAI/actions/runs/40155825823),
+tentatives 1 à 3). La capture d’échec montrait la fenêtre « Quoi de neuf »
+d’Open WebUI : elle s’ouvre pour un compte neuf (toujours le cas en CI) et
+interceptait les clics lorsqu’elle apparaissait après le passage de
+`dismissModals()`. Correction déterministe dans `e2e/fixtures/auth.setup.ts` :
+le setup marque la version comme vue par l’API (réglage utilisateur
+`ui.version`) avant d’ouvrir le navigateur, puis échoue explicitement si une
+fenêtre modale reste ouverte. `ENABLE_VERSION_UPDATE_CHECK=false` dans
+`docker-compose.yml` supprime aussi la notification « nouvelle version
+disponible ».
+
+Pour l’activer sur un autre fork : copier `groupe-owui-qa/ci/e2e.yml` dans
+`.github/workflows/groupe-owui-qa-e2e.yml` sur une branche hors PR, vérifier que
+les Actions sont permises dans les paramètres du dépôt, puis pousser ou lancer
+**Run workflow** dans l’onglet **Actions**.
 
 ## Limites connues et démonstration
 
@@ -225,8 +237,9 @@ captures) sont disponibles avant d’affirmer que la CI fonctionne.
   déploiement distribué ou de sécurité de production.
 - Les sélecteurs UI dépendent de la version d’Open WebUI ; l’environnement est
   fixé à `v0.11.4` dans Compose.
-- Aucun run GitHub Actions n’est confirmé ici. La reproductibilité CI dépend
-  de l’activation du workflow par une personne autorisée.
+- La CI tourne sur une branche du fork hors PR (voir « Intégration continue ») ;
+  un seul run vert sur la version finale ne mesure pas à lui seul la stabilité
+  en CI, qu’il faudrait évaluer sur plusieurs exécutions.
 - Pour une démonstration sans fournisseur externe, après l’installation et la
   configuration de `.env` décrites plus haut, exécuter depuis ce dossier :
 
@@ -273,4 +286,5 @@ fichiers du projet.
 ### Support de soutenance
 
 La présentation du projet est disponible dans
-[`slides/F1-QA-E2E-Open-WebUI.pptx`](slides/F1-QA-E2E-Open-WebUI.pptx).
+[`slides/F1-QA-E2E-Open-WebUI.pptx`](slides/F1-QA-E2E-Open-WebUI.pptx), avec
+une version PDF : [`slides/F1-QA-E2E-Open-WebUI.pdf`](slides/F1-QA-E2E-Open-WebUI.pdf).
