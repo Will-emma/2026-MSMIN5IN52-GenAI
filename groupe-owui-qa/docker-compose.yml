@@ -22,6 +22,9 @@ x-owui-env: &owui-env
   ENABLE_TAGS_GENERATION: "false"
   ENABLE_FOLLOW_UP_GENERATION: "false"
   ENABLE_AUTOCOMPLETE_GENERATION: "false"
+  # Pas de vérification de mise à jour en ligne : sinon une notification
+  # « nouvelle version disponible » apparaît dès qu'une release sort.
+  ENABLE_VERSION_UPDATE_CHECK: "false"
   ANONYMIZED_TELEMETRY: "false"
   SCARF_NO_ANALYTICS: "true"
   DO_NOT_TRACK: "true"
